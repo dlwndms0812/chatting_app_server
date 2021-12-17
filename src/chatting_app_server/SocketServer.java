@@ -10,9 +10,12 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
+import org.json.simple.parser.JSONParser; //JSON 객체 파싱
+import org.json.simple.JSONObject; //JSONObject 객체 
 
 public class SocketServer {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
         int portNumber = 5555;
 
         try {
@@ -31,8 +34,18 @@ public class SocketServer {
                 Object obj = instream.readObject(); // 입력 스트림으로부터 Object 객체 가져오기
                 System.out.println("클라이언트로부터 받은 데이터 : " + obj); // 가져온 객체 출력
               
+                //json 파싱
+                JSONAdd jsonadd=new JSONAdd();
+                jsonadd.jsonadd(); //생성자 불러오기
+                
+                JSONParser parser=new JSONParser(); //파싱 작업을 위한 객체생성
+                JSONObject jobj=(JSONObject)parser.parse(jsonadd.json); //String json을 파싱받은 뒤, JSONObject 형태로 저장
+                JSONObject inf=(JSONObject)jobj.get("inf");
+                
+                String str=(String)inf.get(obj); //파싱
+                
                 ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream()); //소켓의 출력 스트림 객체 참조
-                outstream.writeObject(obj + " from server"); //출력 스트림에 응답 넣기
+                outstream.writeObject(str); //출력 스트림에 응답 넣기
                 outstream.flush(); // 출력
                 socket.close(); //소켓 해제 
             }
